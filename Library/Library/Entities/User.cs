@@ -2,16 +2,18 @@
 {
     public sealed record class User
     {
-        private Guid IdUser { get; } = Guid.Empty;
-        private string Name { get; } = string.Empty;
+        public Guid IdUser { get; } = Guid.Empty;
+        public string Name { get; } = string.Empty;
+        public bool IsAuthorized { get; }
 
-        private User(Guid idUser, string name)
+        private User(Guid idUser, string name, bool isAuthorized)
         {
             IdUser = idUser;
             Name = name;
+            IsAuthorized = isAuthorized;
         }
 
-        private static readonly List<User> Users = [];
+        public static readonly List<User> Users = [];
 
         public static void ShowUserMenu()
         {
@@ -41,21 +43,25 @@
 
         private static void RegisterUser()
         {
-            Console.WriteLine("Registering a new user...");
+            Console.WriteLine("\nRegistering a new user...");
 
-            Console.Write("Enter name: ");
+            Console.Write("Enter a name: ");
             string name = Console.ReadLine() ?? string.Empty;
 
-            Users.Add(new User(Guid.NewGuid(), name));
-            
-            Console.WriteLine($"User registered successfully!\n");
+            Console.Write("This user is admin? (y/n): ");
+            bool isAdmin = "y".Equals(Console.ReadLine(), StringComparison.OrdinalIgnoreCase);
+
+            Guid userId = Guid.NewGuid();
+            Users.Add(new User(userId, name, isAdmin));
+
+            Console.WriteLine("User registered successfully!\n");
         }
 
         private static void ShowRegisteredUsers()
         {
-            Users.Select(x => x.Name)
+            Users.Select(x => x)
                 .ToList()
-                .ForEach(name => Console.Write(name + "\n"));
+                .ForEach(user => Console.Write($"{user.Name} - {(user.IsAuthorized ? "Admin" : "Regular")}\n"));
         }
     }
 }
